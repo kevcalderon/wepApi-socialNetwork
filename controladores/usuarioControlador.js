@@ -1,10 +1,13 @@
 'use strict'
 const bcrypt = require('bcrypt-nodejs');
+const Follow = require('../modelos/follow');
 const User = require('../modelos/usuario');
 var jwt = require('../services/jwt');
 var mongoosePaginate = require('mongoose-pagination');
 var fs = require('fs');
 var path = require('path');
+var async = require('asyncawait/async');
+var await = require('asyncawait/await');
 
 function home(req,res){
 	res.status(200).send({
@@ -150,8 +153,17 @@ function saveUser(req, res){
 		  	});
 		  		if(!user) return res.status(404).send({
 		  			message: 'El usuario no existe.'
-		  		});
-		  			return res.status(200).send({user});		
+		  		});	
+		  			Follow.findOne({
+		  				"user": req.user.sub,
+		  				"followed": userId
+		  			}).exec((err, follow)=>{
+		  				if(err) return res.status(500).send({message: 'Error al comprobar el seguimiento.'});
+
+		  				return res.status(200).send({user, follow});
+		  			})
+
+
 		  		});
 		}
 
